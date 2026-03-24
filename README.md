@@ -25,7 +25,7 @@ This project combines **cutting-edge deep learning models**, **explainable AI vi
 
 **Our Solution:**
 DEEPFAKE-GUARD uses state-of-the-art neural networks combined with Grad-CAM visualization to:
-- ✅ Detect manipulated/synthetic images with **95-99% accuracy**
+- ✅ Detect manipulated/synthetic images with **some accuracy**
 - ✅ Provide confidence scores for every prediction
 - ✅ Explain *why* an image is flagged as fake using visual heatmaps
 - ✅ Process images in real-time (**10-30ms** on GPU)
