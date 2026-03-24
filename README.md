@@ -8,7 +8,7 @@
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)](https://www.docker.com/)
 
 ---
-
+# Keywords: Deepfake Detection, AI, Generative AI, Python, Computer Vision, Fake Image Detection, Machine Learning, Real-time Deepfake Detector
 ## 📖 Project Overview
 
 **DEEPFAKE-GUARD** is an advanced, production-ready **AI-powered deepfake detection system** designed to identify and authenticate facial images in real-time. As deepfake technology becomes increasingly sophisticated, the need for reliable detection tools is more critical than ever. 
