@@ -65,6 +65,12 @@ The system performs **binary classification**:
 |---|---|---|
 | **✅ REAL** | Image appears authentic with no signs of manipulation | Natural facial features, consistent lighting, no compression artifacts |
 | **❌ DEEPFAKE** | Image shows signs of facial manipulation or synthesis | Warped textures, unnatural eye movement, artifacts, generated features |
+---
+## Disclaimer
+
+DeepFake Guard is an educational and research tool. Detection accuracy is not 100%. Do not use as the sole basis for legal, forensic, or journalistic decisions. Always combine AI analysis with critical thinking and additional evidence.
+
+---
 
 ---
 
