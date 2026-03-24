@@ -1,32 +1,44 @@
+
+
 # Backend Dockerfile
+
 FROM python:3.11-slim
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libsm6 \
     libxext6 \
     libxrender-dev \
     libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements
+# Install Python dependencies first (layer cache optimization)
 COPY backend/requirements.txt .
-
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 
 # Copy application code
 COPY backend/app ./app
 COPY backend/main.py .
 COPY weights ./weights
 
-# Create uploads directory
-RUN mkdir -p uploads
+# Create uploads directory and set a non-root user for security
+RUN mkdir -p uploads && \
+    addgroup --system appgroup && \
+    adduser --system --ingroup appgroup appuser && \
+    chown -R appuser:appgroup /app
+
+USER appuser
 
 # Expose port
 EXPOSE 8000
 
 # Run application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
