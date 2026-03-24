@@ -43,7 +43,7 @@ DEEPFAKE-GUARD uses state-of-the-art neural networks combined with Grad-CAM visu
 | **⚡ Real-Time Processing** | GPU-accelerated inference: 10-30ms per image on RTX 3080 |
 | **📊 Confidence Scoring** | Probability metrics showing model certainty (0-100%) |
 | **🔍 Visual Explanations** | Grad-CAM heatmaps highlighting which facial regions indicate deepfakes |
-| **📈 High Accuracy** | ** Not 100% ** accuracy on benchmark datasets (FaceForensics++, Celeb-DF) |
+| **📈 High Accuracy** | **Not 100%** accuracy on benchmark datasets (FaceForensics++, Celeb-DF) |
 
 ### Technical Features
 
