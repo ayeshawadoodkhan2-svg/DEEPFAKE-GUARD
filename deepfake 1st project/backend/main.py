@@ -1,31 +1,67 @@
 """
-Main FastAPI application
+Main FastAPI application entry point.
 """
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+
 import logging
 import os
 
+import uvicorn
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from app.api.routes import init_model, router
 from app.config import settings
-from app.api.routes import router, init_model
 from app.utils.database import init_db
 
-# Configure logging
+# ---------------------------------------------------------------------------
+# Logging
+# ---------------------------------------------------------------------------
+
 logging.basicConfig(
     level=settings.LOG_LEVEL,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
-
 logger = logging.getLogger(__name__)
 
-# Create app
+# ---------------------------------------------------------------------------
+# Lifespan (replaces deprecated on_event handlers)
+# ---------------------------------------------------------------------------
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Handle startup and shutdown logic."""
+    # --- Startup ---
+    logger.info("Starting %s v%s", settings.APP_NAME, settings.APP_VERSION)
+    logger.info("Device: %s", settings.DEVICE)
+
+    os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+
+    init_db()
+
+    try:
+        init_model()
+        logger.info("Model initialized successfully.")
+    except Exception as e:
+        logger.error("Failed to initialize model on startup: %s", e, exc_info=True)
+
+    yield  # Application runs here
+
+    # --- Shutdown ---
+    logger.info("Shutting down %s.", settings.APP_NAME)
+
+# ---------------------------------------------------------------------------
+# App
+# ---------------------------------------------------------------------------
+
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
-    description="AI-powered deepfake detection API"
+    description="AI-powered deepfake detection API",
+    lifespan=lifespan,
 )
 
-# Add CORS middleware
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
@@ -34,52 +70,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routes
+# Routes
 app.include_router(router)
 
-# Initialize database
-init_db()
+# ---------------------------------------------------------------------------
+# Endpoints
+# ---------------------------------------------------------------------------
 
-# Create uploads directory
-os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
-
-
-@app.on_event("startup")
-async def startup_event():
-    """Initialize on startup"""
-    logger.info(f"Starting {settings.APP_NAME} v{settings.APP_VERSION}")
-    logger.info(f"Device: {settings.DEVICE}")
-    
-    # Initialize model
-    try:
-        init_model()
-        logger.info("Model initialized successfully")
-    except Exception as e:
-        logger.error(f"Failed to initialize model on startup: {e}")
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Cleanup on shutdown"""
-    logger.info(f"Shutting down {settings.APP_NAME}")
-
-
-@app.get("/")
+@app.get("/", tags=["Health"])
 async def root():
-    """Root endpoint"""
+    """Root health-check endpoint."""
     return {
         "message": "Deepfake Detector API",
         "version": settings.APP_VERSION,
         "docs": "/docs",
-        "redoc": "/redoc"
+        "redoc": "/redoc",
     }
 
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    import uvicorn
     uvicorn.run(
         "main:app",
         host=settings.HOST,
         port=settings.PORT,
-        reload=settings.DEBUG
+        reload=settings.DEBUG,
     )
